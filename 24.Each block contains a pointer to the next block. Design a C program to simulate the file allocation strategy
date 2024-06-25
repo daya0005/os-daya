@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define constants
+#define BLOCK_SIZE 512
+#define MAX_FILES 100
+#define MAX_FILENAME 50
+
+// Define a structure for a disk block
+typedef struct DiskBlock {
+    int blockNumber;
+    char data[BLOCK_SIZE];
+    struct DiskBlock* next;
+} DiskBlock;
+
+// Define a structure for a file
+typedef struct File {
+    char name[MAX_FILENAME];
+    DiskBlock* firstBlock;
+    DiskBlock* lastBlock;
+} File;
+
+// Define a structure for the file system
+typedef struct FileSystem {
+    File files[MAX_FILES];
+    int fileCount;
+} FileSystem;
+
+// Function to create a new file in the file system
+void createFile(FileSystem* fs, const char* filename) {
+    if (fs->fileCount >= MAX_FILES) {
+        printf("Error: Maximum file limit reached.\n");
+        return;
+    }
+    strcpy(fs->files[fs->fileCount].name, filename);
+    fs->files[fs->fileCount].firstBlock = NULL;
+    fs->files[fs->fileCount].lastBlock = NULL;
+    fs->fileCount++;
+    printf("File '%s' created.\n", filename);
+}
+
+// Function to append a block to a file
+void appendBlock(FileSystem* fs, const char* filename, const char* data) {
+    for (int i = 0; i < fs->fileCount; i++) {
+        if (strcmp(fs->files[i].name, filename) == 0) {
+            DiskBlock* newBlock = (DiskBlock*)malloc(sizeof(DiskBlock));
+            newBlock->blockNumber = rand() % 10000; // Assign a random block number for simulation
+            strcpy(newBlock->data, data);
+            newBlock->next = NULL;
+
+            if (fs->files[i].firstBlock == NULL) {
+                fs->files[i].firstBlock = newBlock;
+                fs->files[i].lastBlock = newBlock;
+            } else {
+                fs->files[i].lastBlock->next = newBlock;
+                fs->files[i].lastBlock = newBlock;
+            }
+            printf("Block appended to file '%s'.\n", filename);
+            return;
+        }
+    }
+    printf("Error: File '%s' not found.\n", filename);
+}
+
+// Function to display the blocks of a file
+void displayFile(FileSystem* fs, const char* filename) {
+    for (int i = 0; i < fs->fileCount; i++) {
+        if (strcmp(fs->files[i].name, filename) == 0) {
+            printf("File '%s' blocks:\n", filename);
+            DiskBlock* current = fs->files[i].firstBlock;
+            while (current != NULL) {
+                printf("Block Number: %d, Data: %s\n", current->blockNumber, current->data);
+                current = current->next;
+            }
+            return;
+        }
+    }
+    printf("Error: File '%s' not found.\n", filename);
+}
+
+// Main function to demonstrate the file system operations
+int main() {
+    FileSystem fs;
+    fs.fileCount = 0;
+
+    createFile(&fs, "file1.txt");
+    appendBlock(&fs, "file1.txt", "Hello, world!");
+    appendBlock(&fs, "file1.txt", "This is a test.");
+    appendBlock(&fs, "file1.txt", "Linked allocation.");
+    
+    createFile(&fs, "file2.txt");
+    appendBlock(&fs, "file2.txt", "Another file.");
+    
+    displayFile(&fs, "file1.txt");
+    displayFile(&fs, "file2.txt");
+
+    return 0;
+}

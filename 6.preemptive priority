@@ -1,0 +1,63 @@
+#include<stdio.h>
+int i,j;
+struct process {
+	int a;
+	int b;
+	int w;
+	int t;
+	int pr;
+};
+void swap(struct process *x,struct process *y)
+{
+	struct process temp;
+	temp=*x;
+	*x=*y;
+	*y=temp;
+}
+void sort(struct process p[],int n)
+{
+	for(i=0;i<n-1;i++)
+	{
+		for(j=i+1;j<n;j++)
+		{
+			if(p[i].pr > p[j].pr)
+			{
+				swap(&p[i],&p[j]);
+			}
+		}
+	}
+}
+void calculate(struct process p[],int n)
+{
+	sort(p,n);
+	int c=0;
+	for(i=0;i<n;i++) 
+{
+
+	if(c<p[i].a)
+	{
+		c=p[i].a;
+	}
+	p[i].w = c-p[i].a;
+	p[i].t=p[i].w+ p[i].b;
+	c=c+p[i].b;
+} }
+int main()
+{
+	int n;
+	printf("enter the no of process:");
+	scanf("%d",&n);
+	struct process p[n];
+	for(i=0;i<n;i++)
+	{
+		printf("enter the arr,burst and pririty for %d:",i+1);
+		scanf("%d%d%d",&p[i].a,&p[i].b,&p[i].pr);
+			}
+	calculate(p,n);
+	printf("arr\tburst\tpriority\twait\t\tat\n");
+	for(i=0;i<n;i++)
+	{
+		printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\n",p[i].a,p[i].b,p[i].pr,p[i].w,p[i].t);
+	}
+	return 0;
+}
